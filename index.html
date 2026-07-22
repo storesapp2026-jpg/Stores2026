@@ -963,6 +963,53 @@ if('serviceWorker' in navigator){
    INIT
 ===================================================================== */
 renderRoleGate();
-</script>
+</script>// Minimal offline shell cache. Data always comes fresh from Google Sheets
+// when online; this only lets the app *open* (UI shell) without a network.
+const CACHE_NAME = 'stores-register-v1';
+const SHELL_FILES = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  // Never cache API calls to Google Apps Script — data must stay live.
+  if (req.url.includes('script.google.com')) return;
+
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      const network = fetch(req)
+        .then((res) => {
+          if (res.ok && req.method === 'GET') {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
+  );
+});
+
 </body>
 </html>
