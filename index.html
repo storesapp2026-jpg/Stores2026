@@ -1,4 +1,7 @@
-<!DOCTYPE html>{
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{
   "name": "Stores Register & Appraisal - Sri Narasus Coffee Co.",
   "short_name": "Stores Register",
   "description": "Stores Department Staff Working Register & KPI-Based Appraisal",
@@ -14,8 +17,6 @@
   ]
 }
 
-<html lang="en">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Stores Register &amp; Appraisal · Sri Narasus Coffee Co.</title>
@@ -920,7 +921,7 @@ function renderSettings(){
       <div class="field"><label>Department Name</label><input id="st-dept" value="${escapeHtml(s.DepartmentName||'')}"></div>
       <div class="field"><label>Theme Color</label><input type="color" id="st-color" value="${s.ThemeColor||'#4a2c1d'}" style="height:40px;"></div>
       <div class="field"><label>Financial Year Start (MM-DD)</label><input id="st-fy" value="${escapeHtml(s.FinancialYearStart||'01-01')}"></div>
-      <div class="field"><label>Apps Script Web App URL</label><input id=https://script.google.com/macros/s/AKfycbz7V5673d5RvgMkNRc_VP_5DACwPcQe_zgo2M5p_rooaxbsqLdDJpXmKN3FeZrKxWid/exec"st-api" value="${escapeHtml(CONFIG.API_URL)}"><div class="field-hint">Editing this only updates the running session — for a permanent change, edit CONFIG.API_URL in index.html (see SETUP.md).</div></div>
+      <div class="field"><label>Apps Script Web App URL</label><input id="st-api" value="${escapeHtml(CONFIG.API_URL)}"><div class="field-hint">Editing this only updates the running session — for a permanent change, edit CONFIG.API_URL in index.html (see SETUP.md).</div></div>
       <button class="btn btn-primary" id="st-save">Save Settings</button>
     </div>`;
   document.getElementById('st-save').onclick = async ()=>{
@@ -963,7 +964,8 @@ if('serviceWorker' in navigator){
    INIT
 ===================================================================== */
 renderRoleGate();
-</script>// Minimal offline shell cache. Data always comes fresh from Google Sheets
+</script>
+// Minimal offline shell cache. Data always comes fresh from Google Sheets
 // when online; this only lets the app *open* (UI shell) without a network.
 const CACHE_NAME = 'stores-register-v1';
 const SHELL_FILES = [
