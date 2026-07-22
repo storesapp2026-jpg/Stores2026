@@ -920,7 +920,7 @@ function renderSettings(){
       <div class="field"><label>Department Name</label><input id="st-dept" value="${escapeHtml(s.DepartmentName||'')}"></div>
       <div class="field"><label>Theme Color</label><input type="color" id="st-color" value="${s.ThemeColor||'#4a2c1d'}" style="height:40px;"></div>
       <div class="field"><label>Financial Year Start (MM-DD)</label><input id="st-fy" value="${escapeHtml(s.FinancialYearStart||'01-01')}"></div>
-      <div class="field"><label>Apps Script Web App URL</label><input id="st-api" value="${escapeHtml(CONFIG.API_URL)}"><div class="field-hint">Editing this only updates the running session — for a permanent change, edit CONFIG.API_URL in index.html (see SETUP.md).</div></div>
+      <div class="field"><label>Apps Script Web App URL</label><input id=https://script.google.com/macros/s/AKfycbz7V5673d5RvgMkNRc_VP_5DACwPcQe_zgo2M5p_rooaxbsqLdDJpXmKN3FeZrKxWid/exec"st-api" value="${escapeHtml(CONFIG.API_URL)}"><div class="field-hint">Editing this only updates the running session — for a permanent change, edit CONFIG.API_URL in index.html (see SETUP.md).</div></div>
       <button class="btn btn-primary" id="st-save">Save Settings</button>
     </div>`;
   document.getElementById('st-save').onclick = async ()=>{
