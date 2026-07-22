@@ -926,7 +926,7 @@ function renderSettings(){
     </div>`;
   document.getElementById('st-save').onclick = async ()=>{
     showLoading(true);
-    try{
+    try{https://script.google.com/macros/s/AKfycbz7V5673d5RvgMkNRc_VP_5DACwPcQe_zgo2M5p_rooaxbsqLdDJpXmKN3FeZrKxWid/exec
       await Api.saveSettings({ CompanyName: document.getElementById('st-company').value, DepartmentName: document.getElementById('st-dept').value, ThemeColor: document.getElementById('st-color').value, FinancialYearStart: document.getElementById('st-fy').value });
       CONFIG.API_URL = document.getElementById('st-api').value;
       toast('Settings saved','ok');
