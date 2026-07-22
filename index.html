@@ -1,0 +1,968 @@
+<!DOCTYPE html>{
+  "name": "Stores Register & Appraisal - Sri Narasus Coffee Co.",
+  "short_name": "Stores Register",
+  "description": "Stores Department Staff Working Register & KPI-Based Appraisal",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5efe6",
+  "theme_color": "#4a2c1d",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Stores Register &amp; Appraisal · Sri Narasus Coffee Co.</title>
+<meta name="theme-color" content="#4a2c1d">
+<meta name="description" content="Stores Department Staff Working Register & KPI-Based Appraisal">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================= DESIGN TOKENS ============================= */
+:root{
+  --coffee-900:#2e1a10;
+  --coffee-800:#4a2c1d;
+  --coffee-700:#6b4226;
+  --coffee-500:#8a5a37;
+  --gold-500:#c8a165;
+  --gold-300:#e3c68f;
+  --cream-100:#f5efe6;
+  --cream-050:#faf6ef;
+  --ink-900:#241a12;
+  --ink-500:#6f6255;
+  --ok-600:#4a7c59;
+  --ok-100:#e4f0e6;
+  --warn-600:#b8842a;
+  --warn-100:#f8ecd4;
+  --err-600:#a8433f;
+  --err-100:#f6e1df;
+  --line:#e4d9c8;
+  --radius:12px;
+  --shadow:0 2px 10px rgba(46,26,16,.08);
+  --shadow-lg:0 12px 32px rgba(46,26,16,.16);
+  --font-display:'Fraunces',Georgia,serif;
+  --font-body:'Source Sans 3',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:var(--font-body);
+  background:var(--cream-100);
+  color:var(--ink-900);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;color:var(--coffee-900);}
+button{font-family:inherit;}
+a{color:inherit;}
+::selection{background:var(--gold-300);}
+:focus-visible{outline:2px solid var(--coffee-700);outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important;}}
+
+/* ============================= APP SHELL ============================= */
+#app{display:flex;min-height:100vh;}
+
+/* -- Sidebar (desktop) -- */
+.sidebar{
+  width:236px;flex-shrink:0;background:var(--coffee-900);color:var(--cream-100);
+  display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;border-bottom:1px solid rgba(245,239,230,.12);margin-bottom:14px;}
+.brand-mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(155deg,var(--gold-500),var(--coffee-700));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:var(--coffee-900);flex-shrink:0;}
+.brand-name{font-family:var(--font-display);font-size:15px;line-height:1.25;font-weight:600;}
+.brand-sub{font-size:11px;color:var(--gold-300);opacity:.8;}
+.nav-group{margin-bottom:6px;}
+.nav-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-300);opacity:.65;padding:12px 12px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:14px;color:var(--cream-100);opacity:.82;transition:background .15s,opacity .15s;}
+.nav-item:hover{background:rgba(245,239,230,.08);opacity:1;}
+.nav-item.active{background:var(--gold-500);color:var(--coffee-900);opacity:1;font-weight:600;}
+.nav-icon{width:18px;height:18px;flex-shrink:0;}
+.sidebar-footer{margin-top:auto;padding-top:14px;border-top:1px solid rgba(245,239,230,.12);font-size:12px;opacity:.7;}
+
+/* -- Topbar -- */
+.topbar{
+  position:sticky;top:0;z-index:20;background:var(--cream-050);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;padding:14px 22px;gap:14px;
+}
+.topbar h1{font-size:19px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.role-pill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:600;color:var(--coffee-800);}
+.role-dot{width:8px;height:8px;border-radius:50%;background:var(--ok-600);}
+.icon-btn{background:#fff;border:1px solid var(--line);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--coffee-800);}
+.icon-btn:hover{background:var(--cream-100);}
+
+main.content{flex:1;min-width:0;display:flex;flex-direction:column;padding-bottom:70px;}
+.view{padding:20px 22px 8px;animation:fadeIn .25s ease;}
+.view[hidden]{display:none;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* -- Bottom nav (mobile) -- */
+.bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;
+  border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  justify-content:space-around;box-shadow:0 -4px 16px rgba(46,26,16,.08);
+}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--ink-500);padding:6px 8px;border-radius:10px;cursor:pointer;flex:1;}
+.bn-item.active{color:var(--coffee-800);font-weight:700;}
+.bn-item svg{width:20px;height:20px;}
+
+@media (max-width:900px){
+  .sidebar{display:none;}
+  .bottom-nav{display:flex;}
+  .view{padding:16px 14px 8px;}
+  .topbar{padding:12px 14px;}
+}
+
+/* ============================= COMPONENTS ============================= */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+.card-pad{padding:18px;}
+.section-title{display:flex;align-items:center;justify-content:between;gap:10px;margin:22px 0 12px;}
+.section-title h2{font-size:17px;}
+.grid{display:grid;gap:14px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+
+/* KPI stat card */
+.stat-card{padding:16px 18px;position:relative;overflow:hidden;}
+.stat-label{font-size:12px;color:var(--ink-500);font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+.stat-value{font-family:var(--font-display);font-size:28px;color:var(--coffee-900);margin-top:4px;}
+.stat-sub{font-size:12px;color:var(--ink-500);margin-top:4px;}
+.stat-accent{position:absolute;right:-10px;top:-10px;width:70px;height:70px;border-radius:50%;opacity:.10;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:9px;border:1px solid transparent;font-size:14px;font-weight:600;cursor:pointer;transition:transform .1s,box-shadow .15s;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--coffee-800);color:#fff;}
+.btn-primary:hover{background:var(--coffee-900);}
+.btn-outline{background:#fff;border-color:var(--line);color:var(--coffee-800);}
+.btn-outline:hover{background:var(--cream-100);}
+.btn-danger{background:var(--err-600);color:#fff;}
+.btn-sm{padding:6px 11px;font-size:12.5px;}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center;}
+
+/* Forms */
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--coffee-800);margin-bottom:5px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:14px;
+  font-family:inherit;background:#fff;color:var(--ink-900);
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--coffee-700);}
+.field-hint{font-size:11.5px;color:var(--ink-500);margin-top:4px;}
+.checkbox-list{display:flex;flex-wrap:wrap;gap:8px;max-height:170px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:9px;}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:99px;background:var(--cream-100);border:1px solid var(--line);font-size:12.5px;cursor:pointer;user-select:none;}
+.chip.selected{background:var(--coffee-800);color:#fff;border-color:var(--coffee-800);}
+
+/* Table */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:#fff;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px;}
+thead th{text-align:left;background:var(--cream-050);color:var(--coffee-800);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.03em;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink-900);}
+tbody tr:hover{background:var(--cream-050);}
+tbody tr:last-child td{border-bottom:none;}
+.table-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:210px;flex:1;max-width:320px;}
+.search-box input{border:none;outline:none;flex:1;font-size:13.5px;}
+.pagination{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:12px;font-size:13px;color:var(--ink-500);}
+
+/* Ledger-stamp status badge — the signature motif: entries read like dispatch
+   paperwork, so status reads like a rubber stamp on a challan */
+.stamp{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border:2px solid currentColor;border-radius:5px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;transform:rotate(-2deg);
+  font-family:var(--font-display);
+}
+.stamp-draft{color:var(--ink-500);}
+.stamp-submitted{color:var(--warn-600);}
+.stamp-approved{color:var(--ok-600);}
+.stamp-rejected{color:var(--err-600);}
+
+/* Toast */
+#toast-host{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--coffee-900);color:#fff;padding:12px 16px;border-radius:9px;box-shadow:var(--shadow-lg);font-size:13.5px;display:flex;align-items:center;gap:9px;min-width:220px;animation:slideIn .25s ease;}
+.toast.ok{background:var(--ok-600);}
+.toast.err{background:var(--err-600);}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:none;}}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(46,26,16,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn .2s ease;}
+.modal{background:#fff;border-radius:14px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-head{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+.modal-head h3{font-size:16px;}
+.modal-body{padding:18px 20px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+
+/* Loading */
+.spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--coffee-800);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loading-overlay{position:fixed;inset:0;background:rgba(250,246,239,.75);z-index:150;display:flex;align-items:center;justify-content:center;}
+#loading-overlay[hidden]{display:none;}
+
+/* Empty state */
+.empty-state{padding:40px 20px;text-align:center;color:var(--ink-500);}
+.empty-state svg{width:44px;height:44px;color:var(--gold-500);margin-bottom:10px;}
+
+/* Role gate */
+.role-gate{position:fixed;inset:0;background:var(--coffee-900);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.role-card{background:var(--cream-050);border-radius:16px;padding:36px 30px;max-width:380px;width:100%;text-align:center;box-shadow:var(--shadow-lg);}
+.role-card .brand-mark{margin:0 auto 16px;width:52px;height:52px;font-size:22px;}
+.role-btn{width:100%;padding:14px;margin-top:10px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:15px;font-weight:600;color:var(--coffee-800);cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;transition:border-color .15s,background .15s;}
+.role-btn:hover{border-color:var(--coffee-700);background:var(--cream-100);}
+
+.badge-count{background:var(--err-600);color:#fff;font-size:10px;font-weight:700;border-radius:99px;padding:1px 6px;margin-left:auto;}
+.helper-text{color:var(--ink-500);font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay" hidden><div class="spinner"></div></div>
+<div id="toast-host"></div>
+<div id="role-gate-host"></div>
+<div id="modal-host"></div>
+
+<div id="app" hidden>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SN</div>
+      <div>
+        <div class="brand-name" id="sb-company">Sri Narasus Coffee Co.</div>
+        <div class="brand-sub" id="sb-dept">Stores Department</div>
+      </div>
+    </div>
+    <div id="nav-container" style="flex:1;overflow-y:auto;"></div>
+    <div class="sidebar-footer">
+      Signed in as <strong id="sb-role" style="color:#fff;">Manager</strong>
+      <div style="margin-top:8px;"><a href="#" id="sb-switch-role" style="color:var(--gold-300);text-decoration:none;font-size:12px;">Switch role</a></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <h1 id="view-title">Dashboard</h1>
+      <div class="topbar-right">
+        <span class="role-pill"><span class="role-dot"></span><span id="topbar-role">Manager</span></span>
+        <button class="icon-btn" id="btn-install" title="Install app" hidden>⭳</button>
+      </div>
+    </div>
+
+    <section class="view" id="view-dashboard"></section>
+    <section class="view" id="view-register" hidden></section>
+    <section class="view" id="view-appraisal" hidden></section>
+    <section class="view" id="view-reports" hidden></section>
+    <section class="view" id="view-masters" hidden></section>
+    <section class="view" id="view-settings" hidden></section>
+  </main>
+</div>
+
+<nav class="bottom-nav" id="bottom-nav"></nav>
+
+<script>
+/* =====================================================================
+   CONFIG — set this to your deployed Apps Script Web App /exec URL.
+   See SETUP.md for how to get this after deploying code.gs.
+===================================================================== */
+const CONFIG = {
+  API_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
+  COMPANY_NAME: 'Sri Narasus Coffee Company Private Limited',
+  DEPARTMENT_NAME: 'Stores Department',
+  THEME_COLOR: '#4a2c1d',
+  DATE_FORMAT: 'DD-MM-YYYY'
+};
+
+/* =====================================================================
+   STATE — kept in memory only (no localStorage), so a reload asks the
+   role again. Fine for a shared kiosk-style tablet at the stores desk.
+===================================================================== */
+const STATE = {
+  role: null,            // 'Manager' | 'Staff'
+  currentView: 'dashboard',
+  bootstrap: null,       // sections/staff/activities/workflows/settings from server
+  registerCache: [],
+  registerFilters: { from:'', to:'', section:'', status:'', page:1, pageSize:10, q:'' }
+};
+
+/* =====================================================================
+   API LAYER — one small module per concern, each talking to Apps Script
+   independently so new modules can be added without touching the others.
+===================================================================== */
+const Api = {
+  async _get(params){
+    const url = CONFIG.API_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    return json;
+  },
+  async _post(body){
+    const res = await fetch(CONFIG.API_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // avoids CORS preflight on Apps Script
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    return json;
+  },
+  bootstrap(){ return this._get({ action:'bootstrap' }); },
+  list(sheet){ return this._get({ action:'list', sheet }); },
+  dashboard(from,to){ return this._get({ action:'dashboard', from: from||'', to: to||'' }); },
+  report(params){ return this._get(Object.assign({ action:'report' }, params)); },
+  appraisal(params){ return this._get(Object.assign({ action:'appraisal' }, params)); },
+  add(sheet,data){ return this._post({ action:'add', sheet, data }); },
+  addBatch(sheet,rows){ return this._post({ action:'addBatch', sheet, rows }); },
+  update(sheet,id,data){ return this._post({ action:'update', sheet, id, data }); },
+  remove(sheet,id){ return this._post({ action:'delete', sheet, id }); },
+  setStatus(id,status,user){ return this._post({ action:'setStatus', id, status, user }); },
+  saveSettings(data){ return this._post({ action:'saveSettings', data }); }
+};
+
+/* =====================================================================
+   UI HELPERS — toast, confirm dialog, loading, modal
+===================================================================== */
+function showLoading(v){ document.getElementById('loading-overlay').hidden = !v; }
+
+function toast(msg, type){
+  const host = document.getElementById('toast-host');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 3200);
+}
+
+function confirmDialog(message, okLabel){
+  return new Promise(resolve=>{
+    const host = document.getElementById('modal-host');
+    host.innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal" style="max-width:380px;">
+          <div class="modal-head"><h3>Please confirm</h3></div>
+          <div class="modal-body"><p class="helper-text">${escapeHtml(message)}</p></div>
+          <div class="modal-foot">
+            <button class="btn btn-outline" id="cd-cancel">Cancel</button>
+            <button class="btn btn-danger" id="cd-ok">${okLabel||'Confirm'}</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('cd-cancel').onclick = ()=>{ host.innerHTML=''; resolve(false); };
+    document.getElementById('cd-ok').onclick = ()=>{ host.innerHTML=''; resolve(true); };
+  });
+}
+
+function openModal(title, bodyHtml, footHtml){
+  const host = document.getElementById('modal-host');
+  host.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <div class="modal-head"><h3>${escapeHtml(title)}</h3><button class="icon-btn" id="modal-close">✕</button></div>
+        <div class="modal-body">${bodyHtml}</div>
+        <div class="modal-foot">${footHtml||''}</div>
+      </div>
+    </div>`;
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('modal-backdrop').addEventListener('click', e=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+}
+function closeModal(){ document.getElementById('modal-host').innerHTML=''; }
+
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(d){
+  if(!d) return '';
+  const dt = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(dt)) return String(d).substring(0,10);
+  const dd = String(dt.getDate()).padStart(2,'0'), mm = String(dt.getMonth()+1).padStart(2,'0');
+  return `${dd}-${mm}-${dt.getFullYear()}`;
+}
+function todayISO(){ return new Date().toISOString().substring(0,10); }
+
+/* =====================================================================
+   ROLE GATE — no login; just choose the working view for this session
+===================================================================== */
+function renderRoleGate(){
+  document.getElementById('role-gate-host').innerHTML = `
+    <div class="role-gate">
+      <div class="role-card">
+        <div class="brand-mark">SN</div>
+        <h2 style="font-size:19px;margin-bottom:4px;">${escapeHtml(CONFIG.COMPANY_NAME)}</h2>
+        <p class="helper-text" style="margin-bottom:18px;">${escapeHtml(CONFIG.DEPARTMENT_NAME)} · Working Register &amp; Appraisal</p>
+        <button class="role-btn" data-role="Manager">🗂️ Continue as Manager<span class="field-hint" style="margin-left:auto;">Approve · Reports</span></button>
+        <button class="role-btn" data-role="Staff">📋 Continue as Staff<span class="field-hint" style="margin-left:auto;">Daily entry</span></button>
+      </div>
+    </div>`;
+  document.querySelectorAll('.role-btn').forEach(btn=>{
+    btn.onclick = ()=>{ STATE.role = btn.dataset.role; document.getElementById('role-gate-host').innerHTML=''; startApp(); };
+  });
+}
+
+/* =====================================================================
+   NAVIGATION
+===================================================================== */
+const NAV_ITEMS = {
+  Manager: [
+    { id:'dashboard', label:'Dashboard', icon:'📊' },
+    { id:'register', label:'Working Register', icon:'🗒️' },
+    { id:'appraisal', label:'Staff Appraisal', icon:'🏆' },
+    { id:'reports', label:'Reports', icon:'📁' },
+    { id:'masters', label:'Master Management', icon:'🗄️' },
+    { id:'settings', label:'Settings', icon:'⚙️' }
+  ],
+  Staff: [
+    { id:'dashboard', label:'Dashboard', icon:'📊' },
+    { id:'register', label:'My Entries', icon:'🗒️' },
+    { id:'appraisal', label:'My Appraisal', icon:'🏆' }
+  ]
+};
+
+function renderNav(){
+  const items = NAV_ITEMS[STATE.role];
+  const sidebarNav = document.getElementById('nav-container');
+  sidebarNav.innerHTML = `<div class="nav-group"><div class="nav-label">Menu</div>${
+    items.map(it=>`<div class="nav-item ${it.id===STATE.currentView?'active':''}" data-view="${it.id}"><span class="nav-icon">${it.icon}</span>${it.label}</div>`).join('')
+  }</div>`;
+  sidebarNav.querySelectorAll('.nav-item').forEach(el=> el.onclick = ()=> switchView(el.dataset.view));
+
+  const bn = document.getElementById('bottom-nav');
+  bn.innerHTML = items.map(it=>`<div class="bn-item ${it.id===STATE.currentView?'active':''}" data-view="${it.id}"><span>${it.icon}</span>${it.label}</div>`).join('');
+  bn.querySelectorAll('.bn-item').forEach(el=> el.onclick = ()=> switchView(el.dataset.view));
+
+  document.getElementById('sb-role').textContent = STATE.role;
+  document.getElementById('topbar-role').textContent = STATE.role;
+}
+
+function switchView(view){
+  STATE.currentView = view;
+  document.querySelectorAll('.view').forEach(v=> v.hidden = true);
+  document.getElementById('view-'+view).hidden = false;
+  const titles = { dashboard:'Dashboard', register: STATE.role==='Staff'?'My Entries':'Working Register', appraisal: STATE.role==='Staff'?'My Appraisal':'Staff Appraisal', reports:'Reports', masters:'Master Management', settings:'Settings' };
+  document.getElementById('view-title').textContent = titles[view];
+  renderNav();
+  const renderers = { dashboard: renderDashboard, register: renderRegister, appraisal: renderAppraisal, reports: renderReports, masters: renderMasters, settings: renderSettings };
+  renderers[view] && renderers[view]();
+}
+
+/* =====================================================================
+   BOOT
+===================================================================== */
+async function startApp(){
+  document.getElementById('app').hidden = false;
+  renderNav();
+  showLoading(true);
+  try{
+    STATE.bootstrap = await Api.bootstrap();
+    applySettings(STATE.bootstrap.settings);
+  }catch(err){
+    toast('Could not load data — check the API URL in Settings. ('+err.message+')','err');
+  }
+  showLoading(false);
+  switchView(STATE.role==='Staff' ? 'dashboard' : 'dashboard');
+  setupInstallPrompt();
+}
+
+function applySettings(settings){
+  if(!settings) return;
+  if(settings.CompanyName){ document.getElementById('sb-company').textContent = settings.CompanyName; CONFIG.COMPANY_NAME = settings.CompanyName; }
+  if(settings.DepartmentName){ document.getElementById('sb-dept').textContent = settings.DepartmentName; CONFIG.DEPARTMENT_NAME = settings.DepartmentName; }
+  if(settings.ThemeColor){ document.documentElement.style.setProperty('--coffee-800', settings.ThemeColor); }
+}
+
+document.getElementById('sb-switch-role').addEventListener('click', e=>{
+  e.preventDefault(); STATE.role=null; document.getElementById('app').hidden=true; renderRoleGate();
+});
+
+/* =====================================================================
+   DASHBOARD
+===================================================================== */
+async function renderDashboard(){
+  const el = document.getElementById('view-dashboard');
+  el.innerHTML = `<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>`;
+  try{
+    const d = await Api.dashboard('','');
+    const cards = [
+      { label:'Total Staff', value:d.totalStaff, sub:'active roster', color:'var(--coffee-700)' },
+      { label:"Today's Entries", value:d.totalEntriesToday, sub:todayFormatted(), color:'var(--gold-500)' },
+      { label:'Pending Approvals', value:d.pendingApprovals, sub:'awaiting manager', color:'var(--warn-600)' },
+      { label:'Approved Entries', value:d.approvedEntries, sub:'all time', color:'var(--ok-600)' }
+    ];
+    el.innerHTML = `
+      <div class="grid grid-4">
+        ${cards.map(c=>`<div class="card stat-card"><div class="stat-accent" style="background:${c.color}"></div><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-sub">${c.sub}</div></div>`).join('')}
+      </div>
+      <div class="section-title"><h2>Quantity by Section</h2></div>
+      <div class="card card-pad">${barChart(d.bySection)}</div>
+      <div class="section-title"><h2>Recent Entries</h2></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Section</th><th>Activity</th><th>Workflow</th><th>Qty</th><th>Staff</th><th>Status</th></tr></thead>
+        <tbody>${
+          d.recentEntries.length ? d.recentEntries.map(r=>`<tr>
+            <td>${fmtDate(r.WorkingDate)}</td><td>${escapeHtml(r.Section)}</td><td>${escapeHtml(r.ActivityName)}</td>
+            <td>${escapeHtml(r.WorkflowName)}</td><td>${r.Quantity}</td><td>${escapeHtml(r.StaffNames)}</td>
+            <td>${statusStamp(r.Status)}</td></tr>`).join('') : `<tr><td colspan="7" style="text-align:center;color:var(--ink-500);padding:24px;">No entries yet — add one from Working Register.</td></tr>`
+        }</tbody>
+      </table></div>`;
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Could not load dashboard. ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function todayFormatted(){ return fmtDate(new Date()); }
+
+function statusStamp(status){
+  const map = { Draft:'stamp-draft', Submitted:'stamp-submitted', Approved:'stamp-approved', Rejected:'stamp-rejected' };
+  return `<span class="stamp ${map[status]||'stamp-draft'}">${escapeHtml(status||'Draft')}</span>`;
+}
+
+function barChart(obj){
+  const entries = Object.entries(obj||{});
+  if(!entries.length) return `<p class="helper-text">No data yet.</p>`;
+  const max = Math.max(...entries.map(e=>e[1]), 1);
+  return `<div style="display:flex;flex-direction:column;gap:10px;">
+    ${entries.map(([k,v])=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;"><span>${escapeHtml(k)}</span><strong>${v}</strong></div>
+        <div style="background:var(--cream-100);border-radius:6px;height:10px;overflow:hidden;">
+          <div style="width:${(v/max*100).toFixed(1)}%;background:linear-gradient(90deg,var(--coffee-700),var(--gold-500));height:100%;border-radius:6px;"></div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* =====================================================================
+   WORKING REGISTER
+===================================================================== */
+async function renderRegister(){
+  const el = document.getElementById('view-register');
+  el.innerHTML = `<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>`;
+  try{
+    STATE.registerCache = await Api.list('WorkingRegister');
+  }catch(err){ el.innerHTML = `<div class="empty-state">${escapeHtml(err.message)}</div>`; return; }
+  drawRegister();
+}
+
+function drawRegister(){
+  const el = document.getElementById('view-register');
+  const f = STATE.registerFilters;
+  const sections = STATE.bootstrap.sections || [];
+
+  let rows = STATE.registerCache.slice();
+  if(f.from) rows = rows.filter(r=> String(r.WorkingDate).substring(0,10) >= f.from);
+  if(f.to) rows = rows.filter(r=> String(r.WorkingDate).substring(0,10) <= f.to);
+  if(f.section) rows = rows.filter(r=> r.Section === f.section);
+  if(f.status) rows = rows.filter(r=> r.Status === f.status);
+  if(f.q) rows = rows.filter(r=> JSON.stringify(r).toLowerCase().includes(f.q.toLowerCase()));
+  rows.sort((a,b)=> new Date(b.WorkingDate) - new Date(a.WorkingDate));
+
+  const pageSize = f.pageSize, totalPages = Math.max(1, Math.ceil(rows.length/pageSize));
+  f.page = Math.min(f.page, totalPages);
+  const pageRows = rows.slice((f.page-1)*pageSize, f.page*pageSize);
+
+  el.innerHTML = `
+    <div class="table-toolbar">
+      <div class="search-box">🔎<input id="reg-search" placeholder="Search entries…" value="${escapeHtml(f.q)}"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select id="reg-section"><option value="">All sections</option>${sections.map(s=>`<option value="${escapeHtml(s.SectionName)}" ${f.section===s.SectionName?'selected':''}>${escapeHtml(s.SectionName)}</option>`).join('')}</select>
+        <select id="reg-status"><option value="">All statuses</option>${['Draft','Submitted','Approved','Rejected'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select>
+        <input type="date" id="reg-from" value="${f.from}">
+        <input type="date" id="reg-to" value="${f.to}">
+        <button class="btn btn-primary" id="reg-add">+ New Entry</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Section</th><th>Activity</th><th>Workflow</th><th>Qty</th><th>Staff</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${pageRows.length ? pageRows.map(r=>`
+          <tr>
+            <td>${fmtDate(r.WorkingDate)}</td><td>${escapeHtml(r.Section)}</td><td>${escapeHtml(r.ActivityName)}</td>
+            <td>${escapeHtml(r.WorkflowName)}</td><td>${r.Quantity}</td><td>${escapeHtml(r.StaffNames)}</td>
+            <td>${statusStamp(r.Status)}</td>
+            <td style="white-space:nowrap;">
+              ${entryActions(r)}
+            </td>
+          </tr>`).join('') : `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--ink-500);">No matching entries.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      Page ${f.page} of ${totalPages} · ${rows.length} entries
+      <button class="btn btn-outline btn-sm" id="reg-prev" ${f.page<=1?'disabled':''}>‹ Prev</button>
+      <button class="btn btn-outline btn-sm" id="reg-next" ${f.page>=totalPages?'disabled':''}>Next ›</button>
+    </div>`;
+
+  document.getElementById('reg-search').oninput = e=>{ f.q=e.target.value; f.page=1; drawRegister(); };
+  document.getElementById('reg-section').onchange = e=>{ f.section=e.target.value; f.page=1; drawRegister(); };
+  document.getElementById('reg-status').onchange = e=>{ f.status=e.target.value; f.page=1; drawRegister(); };
+  document.getElementById('reg-from').onchange = e=>{ f.from=e.target.value; f.page=1; drawRegister(); };
+  document.getElementById('reg-to').onchange = e=>{ f.to=e.target.value; f.page=1; drawRegister(); };
+  document.getElementById('reg-prev').onclick = ()=>{ f.page--; drawRegister(); };
+  document.getElementById('reg-next').onclick = ()=>{ f.page++; drawRegister(); };
+  document.getElementById('reg-add').onclick = ()=> openEntryForm();
+
+  el.querySelectorAll('[data-copy]').forEach(b=> b.onclick = ()=> openEntryForm(findEntry(b.dataset.copy), true));
+  el.querySelectorAll('[data-edit]').forEach(b=> b.onclick = ()=> openEntryForm(findEntry(b.dataset.edit)));
+  el.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=> deleteEntry(b.dataset.del));
+  el.querySelectorAll('[data-submit]').forEach(b=> b.onclick = ()=> changeEntryStatus(b.dataset.submit,'Submitted'));
+  el.querySelectorAll('[data-approve]').forEach(b=> b.onclick = ()=> changeEntryStatus(b.dataset.approve,'Approved'));
+  el.querySelectorAll('[data-reject]').forEach(b=> b.onclick = ()=> changeEntryStatus(b.dataset.reject,'Rejected'));
+}
+
+function entryActions(r){
+  let html = `<button class="btn btn-outline btn-sm" data-copy="${r.EntryID}" title="Copy as new entry">⧉</button> `;
+  if(r.Status === 'Draft'){
+    html += `<button class="btn btn-outline btn-sm" data-edit="${r.EntryID}">Edit</button> `;
+    html += `<button class="btn btn-primary btn-sm" data-submit="${r.EntryID}">Submit</button> `;
+    html += `<button class="btn btn-danger btn-sm" data-del="${r.EntryID}">Delete</button>`;
+  } else if (r.Status === 'Submitted' && STATE.role==='Manager'){
+    html += `<button class="btn btn-primary btn-sm" data-approve="${r.EntryID}">Approve</button> `;
+    html += `<button class="btn btn-danger btn-sm" data-reject="${r.EntryID}">Reject</button>`;
+  }
+  return html;
+}
+
+function findEntry(id){ return STATE.registerCache.find(r=> r.EntryID === id); }
+
+function openEntryForm(existing, isCopy){
+  const sections = STATE.bootstrap.sections || [];
+  const activities = STATE.bootstrap.activities || [];
+  const workflows = STATE.bootstrap.workflows || [];
+  const staff = STATE.bootstrap.staff || [];
+  const e = existing || {};
+  const selectedStaffIds = e.StaffIDs ? String(e.StaffIDs).split(',').map(s=>s.trim()) : [];
+
+  openModal(existing && !isCopy ? 'Edit Entry' : 'New Working Register Entry', `
+    <div class="field"><label>Working Date</label><input type="date" id="f-date" value="${e.WorkingDate ? String(e.WorkingDate).substring(0,10) : todayISO()}"></div>
+    <div class="field"><label>Section</label><select id="f-section">
+      <option value="">Select section</option>
+      ${sections.map(s=>`<option value="${escapeHtml(s.SectionName)}" ${e.Section===s.SectionName?'selected':''}>${escapeHtml(s.SectionName)}</option>`).join('')}
+    </select></div>
+    <div class="field"><label>Activity</label><select id="f-activity">
+      <option value="">Select activity</option>
+      ${activities.map(a=>`<option value="${a.ActivityID}" ${e.ActivityID===a.ActivityID?'selected':''}>${escapeHtml(a.ActivityName)}</option>`).join('')}
+    </select></div>
+    <div class="field"><label>Workflow</label><select id="f-workflow">
+      <option value="">Select activity first</option>
+    </select></div>
+    <div class="field"><label>Quantity</label><input type="number" min="0" step="0.01" id="f-qty" value="${e.Quantity||''}"></div>
+    <div class="field"><label>Assigned Staff (select one or more)</label>
+      <div class="checkbox-list" id="f-staff">${staff.map(s=>`<span class="chip ${selectedStaffIds.includes(s.StaffID)?'selected':''}" data-id="${s.StaffID}" data-name="${escapeHtml(s.Name)}">${escapeHtml(s.Name)}</span>`).join('')}</div>
+    </div>
+    <div class="field"><label>Remarks (optional)</label><textarea id="f-remarks" rows="2">${escapeHtml(e.Remarks||'')}</textarea></div>
+  `, `
+    <button class="btn btn-outline" id="f-cancel">Cancel</button>
+    <button class="btn btn-primary" id="f-save">Save as Draft</button>
+  `);
+
+  function refreshWorkflowOptions(activityId, selectedWfId){
+    const wfSel = document.getElementById('f-workflow');
+    const opts = workflows.filter(w=> w.ActivityID === activityId);
+    wfSel.innerHTML = `<option value="">Select workflow</option>` + opts.map(w=>`<option value="${w.WorkflowID}" ${selectedWfId===w.WorkflowID?'selected':''}>${escapeHtml(w.WorkflowName)} (${escapeHtml(w.Unit)})</option>`).join('');
+  }
+  if(e.ActivityID) refreshWorkflowOptions(e.ActivityID, e.WorkflowID);
+  document.getElementById('f-activity').onchange = ev=> refreshWorkflowOptions(ev.target.value);
+  document.getElementById('f-staff').querySelectorAll('.chip').forEach(chip=>{
+    chip.onclick = ()=> chip.classList.toggle('selected');
+  });
+  document.getElementById('f-cancel').onclick = closeModal;
+  document.getElementById('f-save').onclick = async ()=>{
+    const date = document.getElementById('f-date').value;
+    const section = document.getElementById('f-section').value;
+    const activityId = document.getElementById('f-activity').value;
+    const workflowId = document.getElementById('f-workflow').value;
+    const qty = document.getElementById('f-qty').value;
+    const remarks = document.getElementById('f-remarks').value;
+    const chosenChips = [...document.getElementById('f-staff').querySelectorAll('.chip.selected')];
+    if(!date || !section || !activityId || !workflowId || !qty || !chosenChips.length){
+      toast('Please fill in date, section, activity, workflow, quantity and at least one staff member.', 'err'); return;
+    }
+    const activity = activities.find(a=>a.ActivityID===activityId);
+    const workflow = workflows.find(w=>w.WorkflowID===workflowId);
+    const data = {
+      WorkingDate: date, Section: section, ActivityID: activityId, ActivityName: activity.ActivityName,
+      WorkflowID: workflowId, WorkflowName: workflow.WorkflowName, KPIName: workflow.KPIName, Unit: workflow.Unit,
+      Quantity: Number(qty), StaffIDs: chosenChips.map(c=>c.dataset.id).join(','), StaffNames: chosenChips.map(c=>c.dataset.name).join(', '),
+      Remarks: remarks, Status: 'Draft', CreatedBy: STATE.role, ModifiedBy: STATE.role
+    };
+    showLoading(true);
+    try{
+      if(existing && !isCopy){ await Api.update('WorkingRegister', existing.EntryID, data); toast('Entry updated','ok'); }
+      else { await Api.add('WorkingRegister', data); toast('Entry saved as draft','ok'); }
+      closeModal();
+      renderRegister();
+    }catch(err){ toast('Save failed: '+err.message, 'err'); }
+    showLoading(false);
+  };
+}
+
+async function deleteEntry(id){
+  const ok = await confirmDialog('Delete this draft entry? This cannot be undone.', 'Delete');
+  if(!ok) return;
+  showLoading(true);
+  try{ await Api.remove('WorkingRegister', id); toast('Entry deleted','ok'); renderRegister(); }
+  catch(err){ toast('Delete failed: '+err.message,'err'); }
+  showLoading(false);
+}
+
+async function changeEntryStatus(id, status){
+  showLoading(true);
+  try{ await Api.setStatus(id, status, STATE.role); toast('Entry '+status.toLowerCase(),'ok'); renderRegister(); }
+  catch(err){ toast('Update failed: '+err.message,'err'); }
+  showLoading(false);
+}
+
+/* =====================================================================
+   APPRAISAL
+===================================================================== */
+async function renderAppraisal(){
+  const el = document.getElementById('view-appraisal');
+  el.innerHTML = `
+    <div class="table-toolbar">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="date" id="ap-from"> <input type="date" id="ap-to">
+        <button class="btn btn-primary" id="ap-run">Calculate</button>
+        <button class="btn btn-outline" id="ap-export">Export Excel</button>
+      </div>
+    </div>
+    <div id="ap-results"><div class="empty-state">Choose a date range and click Calculate.</div></div>`;
+  document.getElementById('ap-run').onclick = runAppraisal;
+  document.getElementById('ap-export').onclick = ()=> exportAppraisalExcel();
+}
+
+let LAST_APPRAISAL = [];
+async function runAppraisal(){
+  const from = document.getElementById('ap-from').value;
+  const to = document.getElementById('ap-to').value;
+  const box = document.getElementById('ap-results');
+  box.innerHTML = `<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>`;
+  try{
+    let data = await Api.appraisal({ from, to });
+    if(STATE.role==='Staff'){ data = data; } // staff sees all in this simplified, no-login build; scope via a real login for production
+    data.sort((a,b)=> b.percentage - a.percentage);
+    LAST_APPRAISAL = data;
+    box.innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Staff</th><th>Section</th><th>Entries</th><th>Score</th><th>Max</th><th>Performance</th></tr></thead>
+        <tbody>${data.map((r,i)=>`
+          <tr><td>${i+1}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.section)}</td><td>${r.entryCount}</td>
+          <td>${r.totalScore}</td><td>${r.totalMax}</td>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;max-width:120px;background:var(--cream-100);border-radius:6px;height:8px;overflow:hidden;"><div style="width:${Math.min(r.percentage,100)}%;height:100%;background:linear-gradient(90deg,var(--coffee-700),var(--gold-500));"></div></div><strong>${r.percentage}%</strong></div></td>
+          </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--ink-500);">No approved entries in this range.</td></tr>`}
+        </tbody>
+      </table></div>`;
+  }catch(err){ box.innerHTML = `<div class="empty-state">${escapeHtml(err.message)}</div>`; }
+}
+
+function exportAppraisalExcel(){
+  if(!LAST_APPRAISAL.length){ toast('Run a calculation first','err'); return; }
+  const rows = LAST_APPRAISAL.map((r,i)=>({ Rank:i+1, Staff:r.name, Section:r.section, Entries:r.entryCount, Score:r.totalScore, Max:r.totalMax, 'Performance %':r.percentage }));
+  exportRowsToExcel(rows, 'Staff_Appraisal_Report');
+}
+
+function exportRowsToExcel(rows, filenameBase){
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Report');
+  const meta = [[CONFIG.COMPANY_NAME],[CONFIG.DEPARTMENT_NAME],[filenameBase.replace(/_/g,' ')],[fmtDate(new Date())],[]];
+  const metaWs = XLSX.utils.aoa_to_sheet(meta);
+  const wb2 = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb2, metaWs, 'Cover');
+  XLSX.utils.book_append_sheet(wb2, ws, 'Report');
+  XLSX.writeFile(wb2, filenameBase + '_' + todayISO() + '.xlsx');
+}
+
+/* =====================================================================
+   REPORTS
+===================================================================== */
+async function renderReports(){
+  const el = document.getElementById('view-reports');
+  const sections = STATE.bootstrap.sections || [];
+  const staff = STATE.bootstrap.staff || [];
+  el.innerHTML = `
+    <div class="card card-pad">
+      <div class="grid grid-3">
+        <div class="field"><label>From</label><input type="date" id="rp-from"></div>
+        <div class="field"><label>To</label><input type="date" id="rp-to"></div>
+        <div class="field"><label>Section</label><select id="rp-section"><option value="">All</option>${sections.map(s=>`<option value="${escapeHtml(s.SectionName)}">${escapeHtml(s.SectionName)}</option>`).join('')}</select></div>
+        <div class="field"><label>Staff</label><select id="rp-staff"><option value="">All</option>${staff.map(s=>`<option value="${s.StaffID}">${escapeHtml(s.Name)}</option>`).join('')}</select></div>
+        <div class="field"><label>Status</label><select id="rp-status"><option value="">All</option>${['Draft','Submitted','Approved','Rejected'].map(s=>`<option>${s}</option>`).join('')}</select></div>
+      </div>
+      <button class="btn btn-primary" id="rp-run">Generate Report</button>
+      <button class="btn btn-outline" id="rp-export">Export to Excel</button>
+    </div>
+    <div id="rp-results" style="margin-top:16px;"></div>`;
+  document.getElementById('rp-run').onclick = runReport;
+  document.getElementById('rp-export').onclick = ()=> exportReportExcel();
+}
+
+let LAST_REPORT = [];
+async function runReport(){
+  const params = {
+    from: document.getElementById('rp-from').value, to: document.getElementById('rp-to').value,
+    section: document.getElementById('rp-section').value, staffId: document.getElementById('rp-staff').value,
+    status: document.getElementById('rp-status').value
+  };
+  const box = document.getElementById('rp-results');
+  box.innerHTML = `<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>`;
+  try{
+    const rows = await Api.report(params);
+    LAST_REPORT = rows;
+    box.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Section</th><th>Activity</th><th>Workflow</th><th>Qty</th><th>Unit</th><th>Staff</th><th>Status</th></tr></thead>
+      <tbody>${rows.length ? rows.map(r=>`<tr><td>${fmtDate(r.WorkingDate)}</td><td>${escapeHtml(r.Section)}</td><td>${escapeHtml(r.ActivityName)}</td><td>${escapeHtml(r.WorkflowName)}</td><td>${r.Quantity}</td><td>${escapeHtml(r.Unit)}</td><td>${escapeHtml(r.StaffNames)}</td><td>${statusStamp(r.Status)}</td></tr>`).join('') : `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--ink-500);">No matching records.</td></tr>`}</tbody>
+    </table></div>`;
+  }catch(err){ box.innerHTML = `<div class="empty-state">${escapeHtml(err.message)}</div>`; }
+}
+
+function exportReportExcel(){
+  if(!LAST_REPORT.length){ toast('Generate a report first','err'); return; }
+  const rows = LAST_REPORT.map(r=>({ Date:fmtDate(r.WorkingDate), Section:r.Section, Activity:r.ActivityName, Workflow:r.WorkflowName, Quantity:r.Quantity, Unit:r.Unit, Staff:r.StaffNames, Status:r.Status, CreatedBy:r.CreatedBy, ModifiedBy:r.ModifiedBy }));
+  exportRowsToExcel(rows, 'Working_Register_Report');
+}
+
+/* =====================================================================
+   MASTER MANAGEMENT (generic table editor reused per master sheet)
+===================================================================== */
+const MASTER_DEFS = {
+  Sections:   { sheet:'Sections',   fields:['SectionID','SectionName','Status'], label:'Section' },
+  Staff:      { sheet:'Staff',      fields:['StaffID','Name','EmployeeCode','Designation','Section','ReportingManager','DateOfJoining','Status'], label:'Staff' },
+  Activities: { sheet:'Activities', fields:['ActivityID','ActivityName','Section','Status'], label:'Activity' },
+  Workflows:  { sheet:'Workflows',  fields:['WorkflowID','ActivityID','ActivityName','WorkflowName','KPIName','Unit','Target','Weightage','MaxScore','ExpectedOutput','Status'], label:'Workflow / KPI' },
+  Holidays:   { sheet:'Holidays',   fields:['Date','Description'], label:'Holiday' }
+};
+let ACTIVE_MASTER = 'Sections';
+
+function renderMasters(){
+  const el = document.getElementById('view-masters');
+  el.innerHTML = `
+    <div class="table-toolbar">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${Object.keys(MASTER_DEFS).map(k=>`<button class="btn ${ACTIVE_MASTER===k?'btn-primary':'btn-outline'} btn-sm" data-master="${k}">${MASTER_DEFS[k].label}</button>`).join('')}
+      </div>
+      <button class="btn btn-primary" id="mm-add">+ Add ${MASTER_DEFS[ACTIVE_MASTER].label}</button>
+    </div>
+    <div id="mm-table"><div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div></div>`;
+  el.querySelectorAll('[data-master]').forEach(b=> b.onclick = ()=>{ ACTIVE_MASTER = b.dataset.master; renderMasters(); });
+  document.getElementById('mm-add').onclick = ()=> openMasterForm();
+  loadMasterTable();
+}
+
+async function loadMasterTable(){
+  const def = MASTER_DEFS[ACTIVE_MASTER];
+  const box = document.getElementById('mm-table');
+  try{
+    const rows = await Api.list(def.sheet);
+    box.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr>${def.fields.map(f=>`<th>${f}</th>`).join('')}<th>Actions</th></tr></thead>
+      <tbody>${rows.length ? rows.map(r=>`<tr>${def.fields.map(f=>`<td>${escapeHtml(f.includes('Date')&&r[f] instanceof Object?fmtDate(r[f]):r[f])}</td>`).join('')}
+        <td><button class="btn btn-outline btn-sm" data-edit-m="${r[def.fields[0]]}">Edit</button> <button class="btn btn-danger btn-sm" data-del-m="${r[def.fields[0]]}">Delete</button></td></tr>`).join('') : `<tr><td colspan="${def.fields.length+1}" style="text-align:center;padding:20px;color:var(--ink-500);">No records yet.</td></tr>`}</tbody>
+    </table></div>`;
+    box.querySelectorAll('[data-edit-m]').forEach(b=> b.onclick = async ()=>{
+      const all = await Api.list(def.sheet);
+      const rec = all.find(x=> String(x[def.fields[0]]) === b.dataset.editM);
+      openMasterForm(rec);
+    });
+    box.querySelectorAll('[data-del-m]').forEach(b=> b.onclick = async ()=>{
+      const ok = await confirmDialog('Delete this ' + def.label.toLowerCase() + ' record?', 'Delete');
+      if(!ok) return;
+      showLoading(true);
+      try{ await Api.remove(def.sheet, b.dataset.delM); toast('Deleted','ok'); loadMasterTable(); STATE.bootstrap = await Api.bootstrap(); }
+      catch(err){ toast(err.message,'err'); }
+      showLoading(false);
+    });
+  }catch(err){ box.innerHTML = `<div class="empty-state">${escapeHtml(err.message)}</div>`; }
+}
+
+function openMasterForm(existing){
+  const def = MASTER_DEFS[ACTIVE_MASTER];
+  const e = existing || {};
+  const idField = def.fields[0];
+  openModal((existing?'Edit ':'Add ') + def.label, `
+    ${def.fields.filter(f=>f!==idField).map(f=>`
+      <div class="field"><label>${f}</label><input id="mf-${f}" value="${escapeHtml(e[f]||'')}"></div>
+    `).join('')}
+  `, `
+    <button class="btn btn-outline" id="mf-cancel">Cancel</button>
+    <button class="btn btn-primary" id="mf-save">Save</button>
+  `);
+  document.getElementById('mf-cancel').onclick = closeModal;
+  document.getElementById('mf-save').onclick = async ()=>{
+    const data = {};
+    def.fields.filter(f=>f!==idField).forEach(f=> data[f] = document.getElementById('mf-'+f).value);
+    showLoading(true);
+    try{
+      if(existing){ await Api.update(def.sheet, existing[idField], data); toast('Updated','ok'); }
+      else { await Api.add(def.sheet, data); toast('Added','ok'); }
+      closeModal(); loadMasterTable();
+      STATE.bootstrap = await Api.bootstrap();
+    }catch(err){ toast('Save failed: '+err.message,'err'); }
+    showLoading(false);
+  };
+}
+
+/* =====================================================================
+   SETTINGS
+===================================================================== */
+function renderSettings(){
+  const el = document.getElementById('view-settings');
+  const s = STATE.bootstrap.settings || {};
+  el.innerHTML = `
+    <div class="card card-pad" style="max-width:560px;">
+      <h3 style="margin-bottom:14px;">Company &amp; App Settings</h3>
+      <div class="field"><label>Company Name</label><input id="st-company" value="${escapeHtml(s.CompanyName||'')}"></div>
+      <div class="field"><label>Department Name</label><input id="st-dept" value="${escapeHtml(s.DepartmentName||'')}"></div>
+      <div class="field"><label>Theme Color</label><input type="color" id="st-color" value="${s.ThemeColor||'#4a2c1d'}" style="height:40px;"></div>
+      <div class="field"><label>Financial Year Start (MM-DD)</label><input id="st-fy" value="${escapeHtml(s.FinancialYearStart||'01-01')}"></div>
+      <div class="field"><label>Apps Script Web App URL</label><input id="st-api" value="${escapeHtml(CONFIG.API_URL)}"><div class="field-hint">Editing this only updates the running session — for a permanent change, edit CONFIG.API_URL in index.html (see SETUP.md).</div></div>
+      <button class="btn btn-primary" id="st-save">Save Settings</button>
+    </div>`;
+  document.getElementById('st-save').onclick = async ()=>{
+    showLoading(true);
+    try{
+      await Api.saveSettings({ CompanyName: document.getElementById('st-company').value, DepartmentName: document.getElementById('st-dept').value, ThemeColor: document.getElementById('st-color').value, FinancialYearStart: document.getElementById('st-fy').value });
+      CONFIG.API_URL = document.getElementById('st-api').value;
+      toast('Settings saved','ok');
+      STATE.bootstrap = await Api.bootstrap();
+      applySettings(STATE.bootstrap.settings);
+    }catch(err){ toast('Save failed: '+err.message,'err'); }
+    showLoading(false);
+  };
+}
+
+/* =====================================================================
+   PWA — install prompt + service worker
+===================================================================== */
+let deferredPrompt;
+function setupInstallPrompt(){
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault(); deferredPrompt = e;
+    document.getElementById('btn-install').hidden = false;
+  });
+  document.getElementById('btn-install').onclick = async ()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('btn-install').hidden = true;
+  };
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* offline shell simply won't be cached; app still works online */ });
+  });
+}
+
+/* =====================================================================
+   INIT
+===================================================================== */
+renderRoleGate();
+</script>
+</body>
+</html>
