@@ -1,22 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{
-  "name": "Stores Register & Appraisal - Sri Narasus Coffee Co.",
-  "short_name": "Stores Register",
-  "description": "Stores Department Staff Working Register & KPI-Based Appraisal",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#f5efe6",
-  "theme_color": "#4a2c1d",
-  "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
-  ]
-}
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Stores Register &amp; Appraisal · Sri Narasus Coffee Co.</title>
@@ -275,7 +259,7 @@ tbody tr:last-child td{border-bottom:none;}
    See SETUP.md for how to get this after deploying code.gs.
 ===================================================================== */
 const CONFIG = {
-  API_URL:"https://script.google.com/macros/s/AKfycbxncJV0x1Oyu5E1gR43X3tm0BBq1UnQlMbgtBV7qf_duaGMBIJ-GfY_kgW08PuG_El0KA/exec",
+  API_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
   COMPANY_NAME: 'Sri Narasus Coffee Company Private Limited',
   DEPARTMENT_NAME: 'Stores Department',
   THEME_COLOR: '#4a2c1d',
@@ -926,7 +910,7 @@ function renderSettings(){
     </div>`;
   document.getElementById('st-save').onclick = async ()=>{
     showLoading(true);
-    try
+    try{
       await Api.saveSettings({ CompanyName: document.getElementById('st-company').value, DepartmentName: document.getElementById('st-dept').value, ThemeColor: document.getElementById('st-color').value, FinancialYearStart: document.getElementById('st-fy').value });
       CONFIG.API_URL = document.getElementById('st-api').value;
       toast('Settings saved','ok');
@@ -965,53 +949,5 @@ if('serviceWorker' in navigator){
 ===================================================================== */
 renderRoleGate();
 </script>
-// Minimal offline shell cache. Data always comes fresh from Google Sheets
-// when online; this only lets the app *open* (UI shell) without a network.
-const CACHE_NAME = 'stores-register-v1';
-const SHELL_FILES = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES))
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  // Never cache API calls to Google Apps Script — data must stay live.
-  if (req.url.includes('script.google.com')) return;
-
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res.ok && req.method === 'GET') {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
-  );
-});
-
 </body>
 </html>
